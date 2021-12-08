@@ -1,0 +1,107 @@
+# Copyright (c) 2021 Dai HBG
+
+
+"""
+本代码实现dataloader，加载2020年深交所具有高频数据的股票日频数据和由高频数据计算的平均价差
+"""
+
+
+import numpy as np
+import pandas as pd
+import os
+import datetime
+
+
+class Data:
+    def __init__(self, code_order_dic, order_code_dic, date_position_dic, position_date_dic,
+                 data_dic, spread, top=None):
+        """
+        :param code_order_dic: 股票代码到矩阵位置的字典
+        :param order_code_dic: 矩阵位置到股票代码的字典
+        :param date_position_dic: 日期到矩阵下标的字典
+        :param data_dic: 所有的数据，形状一致
+        :param spread: 使用的价差
+        :param top: 初始的top
+        """
+        self.code_order_dic = code_order_dic
+        self.order_code_dic = order_code_dic
+        self.date_position_dic = date_position_dic
+        self.position_date_dic = position_date_dic
+        self.data_dic = data_dic
+        self.spread = spread
+        if top is None:
+            top = self.top_dic[list(self.top_dic.keys())[0]].copy()
+        self.top = top
+
+    def get_real_date(self, start_date, end_date):  # 用于获取起始日期对应的真正的数据起始位置
+        """
+        :param start_date: 任意输入的开始日期
+        :param end_date: 任意输入的结束日期
+        :return: 返回有交易的真正的起始日期对应的下标
+        """
+        tmp_start = start_date.split('-')
+        i = 0
+        while True:
+            s = datetime.date(int(tmp_start[0]), int(tmp_start[1]), int(tmp_start[2])) + datetime.timedelta(days=i)
+            try:
+                start = self.date_position_dic[s]
+                break
+            except KeyError:
+                i += 1
+        i = 0
+        tmp_end = end_date.split('-')
+        while True:
+            s = datetime.date(int(tmp_end[0]), int(tmp_end[1]), int(tmp_end[2])) + datetime.timedelta(days=i)
+            try:
+                end = self.date_position_dic[s]
+                break
+            except KeyError:
+                i -= 1
+        return start, end
+
+
+class DataLoader:
+    def __init__(self, data_path='E:/Documents/学习资料/DailyData/data',
+                 back_test_data_path='E:/Backups/AutoFactoryData/BackTestData'):
+        """
+        :param data_path: 存放数据的路径
+        :param back_test_data_path: 回测数据的存放路径
+        """
+        self.data_path = data_path
+        self.back_test_data_path = back_test_data_path
+
+    def load(self):
+        """
+        :return: data，包含data_dic，分别为OHLC四个价格；spread，价差
+        """
+        days = os.listdir(self.data_path)
+        spread = np.zeros(len(days), 2081)  # 默认2081只股票
+        names = ['open', 'low', 'high', 'close']  # 字段
+        code_order_dic = {}
+        order_code_dic = {}
+        date_position_dic = {}
+        position_date_dic = {}
+        data_dic = {name: np.zeros(len(days), 2081) for name in names}
+
+        codes = pd.read_csv('{}/{}'.format(self.data_path, days[0]))['Unnamed: 0'].values
+        for i in range(len(codes)):
+            order_code_dic[i] = codes[i]
+            code_order_dic[codes[i]] = i
+
+        day_num = 0
+        for day in days:
+            date_position_dic[datetime.date(2020, int(day[:2]), int(day[2:4]))] = day_num
+            position_date_dic[day_num] = datetime.date(2020, int(day[:2]), int(day[2:4]))
+            df = pd.read_csv('{}/{}'.format(self.data_path, day))
+            for name in names:
+                data_dic[name][day_num] = df[name].values.copy()
+            spread[day_num] = df['bid_ask_spread'].values.copy()
+
+        data = Data(code_order_dic=code_order_dic, order_code_dic=order_code_dic,
+                    position_date_dic=position_date_dic, date_position_dic=date_position_dic,
+                    spread=spread, data_dic=data_dic)
+        return data
+
+
+
+
