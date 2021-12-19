@@ -15,6 +15,7 @@ import sys
 sys.path.append('C:/Users/Administrator/Desktop/Repositories/Low-Frequency-Spread-Estimator')
 from dataloader.dataloader import DataLoader
 from mytools.AutoTester import AutoTester
+from mytools.AutoTester.AutoFormula.AutoFormula import AutoFormula
 
 
 class SpreadEstimator:
@@ -28,4 +29,5 @@ class SpreadEstimator:
         self.back_test_data_path = back_test_data_path
         self.data = DataLoader(data_path=data_path, back_test_data_path=back_test_data_path).load()
         self.tester = AutoTester()
+        self.auto_formula = AutoFormula()
 
