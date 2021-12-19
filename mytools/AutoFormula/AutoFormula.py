@@ -1,44 +1,35 @@
 # Copyright (c) 2021 Dai HBG
 
 """
-该代码定义一个调用FormulaTree类生成公式树的自动化公式生成器，然后返回一个公式
+AutoFormula
+该模块定义调用FormulaTree进行解析公式以及测试
+当前版本不提供自动特征搜寻的功能
 
-开发日志：
-2021-09-13
--- 更新：AutoFormula类初始化需要传入一个data类
-2021-09-20
--- 更新：新增多个算子
-2021-10-15
--- 更新：test_formula方法新增字段fix_weekday，可以指定计算周几的信号
-2021-10-22
--- 更新：formula解析新增更多类型
-2021-11-25
--- 更新：新增2_num_num_num类型算子的解析支持
+日志
+2021-12-19
+- 初始化
 """
+
+
 import numpy as np
-import sys
 import datetime
-sys.path.append('C:/Users/Administrator/Desktop/Daily-Frequency-Quant/AutoFactory/Tester')
-from AutoTester import AutoTester
+import sys
+sys.path.append('C:/Users/Administrator/Desktop/Repositories/Low-Frequency-Spread-Estimator')
+from mytools.AutoTester import AutoTester
 from FormulaTree import FormulaTree, Node, FormulaParser
 from SignalGenerator import SignalGenerator
 
 
 class AutoFormula:
-    def __init__(self, start_date: str, end_date: str, data: Data, height: int = 3, symmetric: bool = False):
+    def __init__(self, start_date: str, end_date: str, data: Data):
         """
         :param start_date:
         :param end_date:
         :param data: Data实例
-        :param height: 最大深度
-        :param symmetric: 是否对称
         """
-        self.height = height
-        self.symmetric = symmetric
         self.start_date = start_date
         self.end_date = end_date
         self.tree_generator = FormulaTree()
-        self.tree = self.tree_generator.init_tree(height=self.height, symmetric=self.symmetric, dim_structure='2_2')
         self.operation = SignalGenerator(data=data)
         self.formula_parser = FormulaParser()
 
@@ -150,36 +141,12 @@ class AutoFormula:
                            self.cal_formula(tree.middle, data_dic, return_type) + ',' + \
                            self.cal_formula(tree.right, data_dic, return_type) + '}'
 
-    def test_formula(self, formula, data, start_date=None, end_date=None, prediction_mode=False,
-                     fix_weekday=None):
+    def test_formula(self, formula: str, data: Data) -> (Stats, np.array):
         """
         :param formula: 需要测试的因子表达式，如果是字符串形式，需要先解析成树
         :param data: Data类
-        :param start_date: 如果不提供则按照Data类默认的来
-        :param end_date: 如果不提供则按照Data类默认的来
-        :param prediction_mode: 是否是最新预测模式，是的话不需要测试，只生成signal
-        :param fix_weekday: 指定统计哪些日期的信号
         :return: 返回统计值以及该因子产生的信号矩阵
         """
-        if not prediction_mode:
-            if type(formula) == str:
-                formula = self.formula_parser.parse(formula)
-            signal = self.cal_formula(formula, data.data_dic)  # 暂时为了方便，无论如何都计算整个回测区间的因子值
-
-            if start_date is None:
-                start_date = str(data.start_date)
-            if end_date is None:
-                end_date = str(data.end_date)
-
-            start, end = data.get_real_date(start_date, end_date)
-            # return signal,start,end
-            if fix_weekday is None:
-                return self.AT.test(signal[start:end + 1], data.ret[start + 1:end + 2], top=data.top[start:end + 1]), \
-                       signal
-            else:
-                tmp = [i for i in range(start, end + 1) if data.position_date_dic[i].weekday() == (fix_weekday - 1) % 7]
-                return self.AT.test(signal[tmp, :], data.ret[[i + 1 for i in tmp], :], top=data.top[tmp, :]), signal
-        else:
-            if type(formula) == str:
-                formula = self.formula_parser.parse(formula)
-            return self.cal_formula(formula, data.data_dic)
+        if type(formula) == str:
+            formula = self.formula_parser.parse(formula)
+        return self.cal_formula(formula, data.data_dic)

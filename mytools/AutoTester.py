@@ -33,12 +33,14 @@ class AutoTester:
         pass
 
     @staticmethod
-    def test(signal: np.array, spread: np.array, top: np.array = None, method: str = 'cs') -> Stats:
+    def test(signal: np.array, spread: np.array, top: np.array = None, method: str = 'cs',
+             corr_type: str = 'linear') -> Stats:
         """
         :param signal: 信号矩阵
         :param spread 和信号矩阵形状一致的高频收益率矩阵
         :param top: 每个时间截面上进入截面的股票位置
         :param method: 计算方式
+        :param corr_type: linear或者log
         :return:
         """
         signal[np.isnan(signal)] = 0
@@ -49,19 +51,27 @@ class AutoTester:
             corr = np.zeros(spread.shape[0])
             for i in range(spread.shape[0]):
                 se = ~np.isnan(signal[i])
-                corr[i] = (np.mean(np.log(data.spread[i][se]) * signal[i][se]) - np.mean(np.log(data.spread[i][se])) *
-                           np.mean(np.log(signal[i][se])))
+                if corr_type == 'linear':
+                    corr[i] = (np.mean(data.spread[i][se] * signal[i][se]) - np.mean(data.spread[i][se]) *
+                               np.mean(signal[i][se]))
+                elif corr_type == 'log':
+                    corr[i] = (np.mean(np.log(data.spread[i][se]) * signal[i][se]) - np.mean(
+                        np.log(data.spread[i][se])) * np.mean(np.log(signal[i][se])))
             mean_corr = np.mean(corr)
             corr_IR = mean_corr / np.std(corr)
-            positive_corr_ratio = np.sum(corr>0) / len(corr)
+            positive_corr_ratio = np.sum(corr > 0) / len(corr)
             return Stats(corr=corr, mean_corr=mean_corr, corr_IR=corr_IR, positive_corr_ratio=positive_corr_ratio)
         elif method == 'ts':  # 时序相关系数
             corr = np.zeros(spread.shape[1])
             for i in range(spread.shape[1]):
                 se = ~np.isnan(signal[:, i])
-                corr[i] = (np.mean(np.log(data.spread[:, i][se]) * signal[:, i][se]) -
-                           np.mean(np.log(data.spread[:, i][se])) *
-                           np.mean(np.log(signal[:, i][se])))
+                if corr_type == 'linear':
+                    corr[i] = (np.mean(data.spread[:, i][se] * signal[i][se]) - np.mean(data.spread[:, i][se]) *
+                               np.mean(signal[:, i][se]))
+                else:
+                    corr[i] = (np.mean(np.log(data.spread[:, i][se]) * signal[:, i][se]) -
+                               np.mean(np.log(data.spread[:, i][se])) *
+                               np.mean(np.log(signal[:, i][se])))
             mean_corr = np.mean(corr)
             corr_IR = mean_corr / np.std(corr)
             positive_corr_ratio = np.sum(corr > 0) / len(corr)
