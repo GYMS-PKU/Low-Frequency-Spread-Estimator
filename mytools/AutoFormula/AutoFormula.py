@@ -15,8 +15,9 @@ import datetime
 import sys
 
 sys.path.append('C:/Users/Administrator/Desktop/Repositories/Low-Frequency-Spread-Estimator')
-from mytools.AutoTester import AutoTester
-from FormulaTree import FormulaTree, Node, FormulaParser
+from dataloader.dataloader import Data
+from mytools.AutoTester import AutoTester, Stats
+from mytools.AutoFormula.FormulaTree import FormulaTree, Node, FormulaParser
 from SignalGenerator import SignalGenerator
 
 
@@ -25,8 +26,6 @@ class AutoFormula:
         """
         :param data: Data实例
         """
-        self.start_date = start_date
-        self.end_date = end_date
         self.tree_generator = FormulaTree()
         self.operation = SignalGenerator(data=data)
         self.formula_parser = FormulaParser()
@@ -62,7 +61,7 @@ class AutoFormula:
                     return self.operation.operation_dic[tree.name](self.cal_formula(tree.left, data_dic, return_type),
                                                                    tree.num_1, tree.num_2, tree.num_3)
                 if tree.operation_type == '2':  # 此时需要判断有没有数字
-                    if tree.num_1 is not None:
+                    if tree.num_1 is None:
                         return self.operation.operation_dic[tree.name](self.cal_formula(tree.left, data_dic,
                                                                                         return_type),
                                                                        self.cal_formula(tree.right, data_dic,

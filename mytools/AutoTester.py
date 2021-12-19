@@ -50,13 +50,11 @@ class AutoTester:
         if method == 'cs':  # 截面相关系数
             corr = np.zeros(spread.shape[0])
             for i in range(spread.shape[0]):
-                se = ~np.isnan(signal[i])
+                se = ~np.isnan(spread[i])
                 if corr_type == 'linear':
-                    corr[i] = (np.mean(data.spread[i][se] * signal[i][se]) - np.mean(data.spread[i][se]) *
-                               np.mean(signal[i][se]))
+                    corr[i] = np.corrcoef(spread[i][se], signal[i][se])[0, 1]
                 elif corr_type == 'log':
-                    corr[i] = (np.mean(np.log(data.spread[i][se]) * signal[i][se]) - np.mean(
-                        np.log(data.spread[i][se])) * np.mean(np.log(signal[i][se])))
+                    corr[i] = np.corrcoef(np.log(spread[i][se]), signal[i][se])[0, 1]
             mean_corr = np.mean(corr)
             corr_IR = mean_corr / np.std(corr)
             positive_corr_ratio = np.sum(corr > 0) / len(corr)
@@ -64,14 +62,11 @@ class AutoTester:
         elif method == 'ts':  # 时序相关系数
             corr = np.zeros(spread.shape[1])
             for i in range(spread.shape[1]):
-                se = ~np.isnan(signal[:, i])
+                se = ~np.isnan(spread[:, i])
                 if corr_type == 'linear':
-                    corr[i] = (np.mean(data.spread[:, i][se] * signal[i][se]) - np.mean(data.spread[:, i][se]) *
-                               np.mean(signal[:, i][se]))
+                    corr[i] = np.corrcoef(spread[:, i][se], signal[:, i][se])[0, 1]
                 else:
-                    corr[i] = (np.mean(np.log(data.spread[:, i][se]) * signal[:, i][se]) -
-                               np.mean(np.log(data.spread[:, i][se])) *
-                               np.mean(np.log(signal[:, i][se])))
+                    corr[i] = np.corrcoef(np.log(spread[:, i][se]), signal[:, i][se])[0, 1]
             mean_corr = np.mean(corr)
             corr_IR = mean_corr / np.std(corr)
             positive_corr_ratio = np.sum(corr > 0) / len(corr)

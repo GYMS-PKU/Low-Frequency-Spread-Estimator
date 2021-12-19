@@ -30,7 +30,8 @@ v1.0
 import numba as nb
 import numpy as np
 import sys
-sys.path.append('./operations')
+sys.path.append('C:/Users/Administrator/Desktop/Repositories/Low-Frequency-Spread-Estimator'
+                '/mytools/AutoFormula/operations')
 from one import *
 from one_num import *
 from one_num_num import *
