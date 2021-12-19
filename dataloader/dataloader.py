@@ -29,8 +29,6 @@ class Data:
         self.position_date_dic = position_date_dic
         self.data_dic = data_dic
         self.spread = spread
-        if top is None:
-            top = self.top_dic[list(self.top_dic.keys())[0]].copy()
         self.top = top
 
     def get_real_date(self, start_date, end_date):  # 用于获取起始日期对应的真正的数据起始位置
@@ -61,8 +59,8 @@ class Data:
 
 
 class DataLoader:
-    def __init__(self, data_path='E:/Documents/学习资料/DailyData/data',
-                 back_test_data_path='E:/Backups/AutoFactoryData/BackTestData'):
+    def __init__(self, data_path='D:/Documents/学习资料/DailyData/data',
+                 back_test_data_path='D:/Documents/AutoFactoryData/BackTestData'):
         """
         :param data_path: 存放数据的路径
         :param back_test_data_path: 回测数据的存放路径
@@ -75,17 +73,22 @@ class DataLoader:
         :return: data，包含data_dic，分别为OHLC四个价格；spread，价差
         """
         days = os.listdir(self.data_path)
-        spread = np.zeros(len(days), 2081)  # 默认2081只股票
+        spread = np.zeros((len(days), 2081))  # 默认2081只股票
         names = ['open', 'low', 'high', 'close']  # 字段
         code_order_dic = {}
         order_code_dic = {}
         date_position_dic = {}
         position_date_dic = {}
-        data_dic = {name: np.zeros(len(days), 2081) for name in names}
+        data_dic = {name: np.zeros((len(days), 2081)) for name in names}
 
         codes = pd.read_csv('{}/{}'.format(self.data_path, days[0]))['Unnamed: 0'].values
         for i in range(len(codes)):
-            order_code_dic[i] = codes[i]
+            stock_code = str(codes[i])
+            if len(stock_code) < 6:
+                stock_code = '0' * (6 - len(stock_code)) + stock_code
+            else:
+                stock_code = str(stock_code)
+            order_code_dic[i] = stock_code
             code_order_dic[codes[i]] = i
 
         day_num = 0
@@ -96,6 +99,7 @@ class DataLoader:
             for name in names:
                 data_dic[name][day_num] = df[name].values.copy()
             spread[day_num] = df['bid_ask_spread'].values.copy()
+            day_num += 1
 
         data = Data(code_order_dic=code_order_dic, order_code_dic=order_code_dic,
                     position_date_dic=position_date_dic, date_position_dic=date_position_dic,
