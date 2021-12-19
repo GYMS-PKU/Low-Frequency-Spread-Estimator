@@ -160,6 +160,5 @@ class AutoFormula:
             end = len(data.spread) - 1
         else:
             start, end = data.get_real_date(start_date, end_date)
-        # return signal,start,end
         return self.auto_tester.test(signal[start:end + 1], data.spread[start:end + 1], method=method,
                                      corr_type=corr_type), signal
