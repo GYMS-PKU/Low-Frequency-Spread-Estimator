@@ -15,6 +15,7 @@ import datetime
 import sys
 
 sys.path.append('C:/Users/Administrator/Desktop/Repositories/Low-Frequency-Spread-Estimator')
+sys.path.append('C:/Users/Handsome Bad Guy/Desktop/Repositories/Low-Frequency-Spread-Estimator')
 from dataloader.dataloader import Data
 from mytools.AutoTester import AutoTester, Stats
 from mytools.AutoFormula.FormulaTree import FormulaTree, Node, FormulaParser

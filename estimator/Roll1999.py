@@ -16,11 +16,11 @@ Journal of Finance 39, 1127–1139.
 import numpy as np
 
 
-def roll(p, threshold=0.01):
+def roll(p: np.array, threshold: float = 0.01) -> np.array:
     """
     :param p: 原始价格序列，为二维array，days * num_stock形状
     :param threshold: 不正常价差估计的修正
-    :return: 返回股票数量的估计值
+    :return: 估计矩阵
     """
     delta_p = p[1:] - p[:-1]
     cov = np.sum(delta_p[1:]*delta_p[:-1], axis=0)

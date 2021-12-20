@@ -30,7 +30,7 @@ def gibbs(p, sigma_c=1e6, ig_alpha=2, ig_beta=1e-4, sample_num=10000):
     q = np.ones(len(p))  # 买卖方向序列初始化为全买单
     # c = 0.01  # 价差初始化为0.01
     sigma_u = np.var(delta_p)  # 价格变化方差初始化为对数收益率方差
-    q_s = np.zeros(sample_num, len(p))  # 存放所有的q序列
+    q_s = np.zeros((sample_num, len(p)))  # 存放所有的q序列
     c_s = np.zeros(sample_num)
     sigma_u_s = np.zeros(sample_num)
     for num in range(sample_num):  # 循环生成Gibbs抽样
@@ -63,3 +63,4 @@ def gibbs(p, sigma_c=1e6, ig_alpha=2, ig_beta=1e-4, sample_num=10000):
         proba /= np.sum(proba)
         q_t[-1] = np.random.choice([-1, 1], p=proba)
         q_s[num] = q_t
+    return c_s, q_s, sigma_u_s

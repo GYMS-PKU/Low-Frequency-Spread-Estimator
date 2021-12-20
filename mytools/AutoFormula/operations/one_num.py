@@ -12,12 +12,12 @@ import numpy as np
 import numba as nb
 
 
-def powv(a, num):  # 幂函数运算符
+def powv(a: np.array, num: float) -> np.array:  # 幂函数运算符
     s = a.copy()
     s[np.isnan(a)] = 0
     s[(s > 0) & (~np.isnan(a))] = a[(s > 0) & (~np.isnan(a))] ** num
     s[(s < 0) & (~np.isnan(a))] = -((-a[(s < 0) & (~np.isnan(a))]) ** num)
-    s[np.isnan(a)] = np.nan
+    return s
 
 
 # @nb.jit

@@ -7,7 +7,7 @@
 
 default_operation_dic = {'1': ['csrank', 'zscore', 'neg', 'csindneutral', 'csind', 'absv'],
                          '1_num': ['wdirect', 'tsrank', 'tskurtosis', 'tsskew',
-                                   'tsmean', 'tsstd', 'tsdelay', 'tsdelta', 'tsmax',
+                                   'tsmean', 'tsstd', 'tspct', 'tsdelay', 'tsdelta', 'tsmax',
                                    'tsmin', 'tsmaxpos', 'tsminpos', 'powv',
                                    'discrete'],
                          '1_num_num': ['intratsmax', 'intratsmaxpos', 'intratsmin',
@@ -19,7 +19,7 @@ default_operation_dic = {'1': ['csrank', 'zscore', 'neg', 'csindneutral', 'csind
                          '1_num_num_num': ['intraquantile', 'intraquantileupmean',
                                            'intraquantiledownmean'],
                          '2': ['add', 'prod', 'minus', 'div', 'lt', 'le', 'gt', 'ge'],
-                         '2_num': ['tscorr', 'tsregres'],
+                         '2_num': ['tscorr', 'tscov', 'tsregres'],
                          '2_num_num': ['intratscorr', 'intratsregres',
                                        'bitsquantile', 'biintratsquantile', 'bitsquantileupmean',
                                        'bitsquantiledownmean', 'biintratsquantileupmean',

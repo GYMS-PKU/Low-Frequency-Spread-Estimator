@@ -55,9 +55,9 @@ class AutoTester:
                     corr[i] = np.corrcoef(spread[i][se], signal[i][se])[0, 1]
                 elif corr_type == 'log':
                     corr[i] = np.corrcoef(np.log(spread[i][se]), signal[i][se])[0, 1]
-            mean_corr = np.mean(corr)
-            corr_IR = mean_corr / np.std(corr)
-            positive_corr_ratio = np.sum(corr > 0) / len(corr)
+            mean_corr = np.nanmean(corr)
+            corr_IR = mean_corr / np.nanstd(corr)
+            positive_corr_ratio = np.sum(corr > 0) / np.sum(~np.isnan(corr))
             return Stats(corr=corr, mean_corr=mean_corr, corr_IR=corr_IR, positive_corr_ratio=positive_corr_ratio)
         elif method == 'ts':  # 时序相关系数
             corr = np.zeros(spread.shape[1])
@@ -67,7 +67,7 @@ class AutoTester:
                     corr[i] = np.corrcoef(spread[:, i][se], signal[:, i][se])[0, 1]
                 else:
                     corr[i] = np.corrcoef(np.log(spread[:, i][se]), signal[:, i][se])[0, 1]
-            mean_corr = np.mean(corr)
-            corr_IR = mean_corr / np.std(corr)
-            positive_corr_ratio = np.sum(corr > 0) / len(corr)
+            mean_corr = np.nanmean(corr)
+            corr_IR = mean_corr / np.nanstd(corr)
+            positive_corr_ratio = np.sum(corr > 0) / np.sum(~np.isnan(corr))
             return Stats(corr=corr, mean_corr=mean_corr, corr_IR=corr_IR, positive_corr_ratio=positive_corr_ratio)

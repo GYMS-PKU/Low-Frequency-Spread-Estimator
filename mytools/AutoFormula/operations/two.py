@@ -27,7 +27,10 @@ def prod(a, b):
 
 def div(a, b):
     s = np.zeros(a.shape)
-    s[b != 0] = a[b != 0] / b[b != 0]
+    if type(b) == float:
+        s = a / b
+    else:
+        s[b != 0] = a[b != 0] / b[b != 0]
     return s
 
 

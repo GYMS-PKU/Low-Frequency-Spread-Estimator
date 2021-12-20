@@ -32,6 +32,8 @@ import numpy as np
 import sys
 sys.path.append('C:/Users/Administrator/Desktop/Repositories/Low-Frequency-Spread-Estimator'
                 '/mytools/AutoFormula/operations')
+sys.path.append('C:/Users/Handsome Bad Guy/Desktop/Repositories/Low-Frequency-Spread-Estimator'
+                '/mytools/AutoFormula/operations')
 from one import *
 from one_num import *
 from one_num_num import *
@@ -247,6 +249,7 @@ class SignalGenerator:
         # 2_num型运算符
         self.operation_dic['tsregres'] = tsregres
         self.operation_dic['tscorr'] = tscorr
+        self.operation_dic['tscov'] = tscov
 
         # 2_num_num型运算符
         self.operation_dic['bitsquantile'] = bitsquantile
