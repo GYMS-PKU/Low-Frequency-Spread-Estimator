@@ -8,6 +8,8 @@ SpreadEstimator
 日志：
 2021-12-19
 - 初始化
+2022-01-30
+- 将所有的操作符替换成cython版本
 """
 
 import numpy as np
@@ -16,7 +18,7 @@ sys.path.append('C:/Users/Administrator/Desktop/Repositories/Low-Frequency-Sprea
 sys.path.append('C:/Users/Handsome Bad Guy/Desktop/Repositories/Low-Frequency-Spread-Estimator')
 from dataloader.dataloader import DataLoader
 from mytools.AutoTester import AutoTester, Stats
-from mytools.AutoFormula.AutoFormula import AutoFormula
+from mytools.AutoFormula.AutoFormula_cy import *
 
 
 class SpreadEstimator:
@@ -31,22 +33,25 @@ class SpreadEstimator:
         dl = DataLoader(data_path=data_path, back_test_data_path=back_test_data_path)
         self.data = dl.load()
         self.tester = AutoTester()
-        self.autoformula = AutoFormula(self.data)
+        self.autoformula = AutoFormula_cy(self.data)
 
     def test_factor(self, formula: str, start_date: str = None, end_date: str = None,
-                    method: str = 'cs', corr_type: str = 'linear', verbose: bool = True) -> (Stats, np.array):
+                    method: str = 'cs', corr_type: str = 'linear',
+                    spread_type: str = 'spread', verbose: bool = True) -> (Stats, np.array):
         """
         :param formula: 需要测试的因子表达式，如果是字符串形式，需要先解析成树
         :param start_date:
         :param end_date:
         :param method: 计算方式
         :param corr_type: linear或者log
+        :param spread_type: 价差类型，可选spread或者relative_spread
         :param verbose: 是否打印结果
         :return: 返回统计值以及该因子产生的信号矩阵
         """
         stats, signal = self.autoformula.test_formula(formula, self.data, start_date=start_date,
-                                                      end_date=end_date, method=method, corr_type=corr_type)
-
-        print('mean corr: {:.4f}, positive_corr_ratio: {:.4f}, corr_IR: {:.4f}'.
-              format(stats.mean_corr, stats.positive_corr_ratio, stats.corr_IR))
+                                                      end_date=end_date, method=method, corr_type=corr_type,
+                                                      spread_type=spread_type)
+        if verbose:
+            print('mean corr: {:.4f}, positive_corr_ratio: {:.4f}, corr_IR: {:.4f}'.
+                  format(stats.mean_corr, stats.positive_corr_ratio, stats.corr_IR))
         return stats, signal

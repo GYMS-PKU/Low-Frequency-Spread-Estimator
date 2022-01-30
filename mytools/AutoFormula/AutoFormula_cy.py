@@ -1,30 +1,22 @@
-# Copyright (c) 2021 Dai HBG
+# Copyright (c) 2022 Dai HBG
 
 """
-AutoFormula
-该模块定义调用FormulaTree进行解析公式以及测试
-当前版本不提供自动特征搜寻的功能
-
-日志
-2021-12-19
-- 初始化
-2021-12-22
-- 新增spread类型选择
+AutoFormula的Cython版本
 """
-
 import numpy as np
-import datetime
 import sys
+import datetime
 
 sys.path.append('C:/Users/Administrator/Desktop/Repositories/Low-Frequency-Spread-Estimator')
 sys.path.append('C:/Users/Handsome Bad Guy/Desktop/Repositories/Low-Frequency-Spread-Estimator')
-from dataloader.dataloader import Data
-from mytools.AutoTester import AutoTester, Stats
-from mytools.AutoFormula.FormulaTree import FormulaTree, Node, FormulaParser
-from SignalGenerator import SignalGenerator
+
+from dataloader.dataloader import *
+from mytools.AutoTester import *
+from mytools.AutoFormula.FormulaTree_cy import *
+from mytools.AutoFormula.SignalGenerator_cy import *
 
 
-class AutoFormula:
+class AutoFormula_cy:
     def __init__(self, data: Data):
         """
         :param data: Data实例
@@ -34,7 +26,8 @@ class AutoFormula:
         self.formula_parser = FormulaParser()
         self.auto_tester = AutoTester()
 
-    def cal_formula(self, tree: FormulaTree, data_dic: dict, return_type: str = 'signal') -> np.array:  # 递归计算公式树的值
+    def cal_formula(self, tree: FormulaTree, data_dic: dict,
+                    return_type: str = 'signal') -> np.array:  # 递归计算公式树的值
         """
         :param tree: 需要计算的公式树
         :param data_dic: 原始数据的字典，可以通过字段读取对应的矩阵
@@ -53,43 +46,93 @@ class AutoFormula:
                     return data_dic[tree.name].copy()  # 如果没有数字就直接返回原本的数据
             else:
                 if tree.operation_type == '1':
-                    return self.operation.operation_dic[tree.name](self.cal_formula(tree.left, data_dic, return_type))
+                    input = self.cal_formula(tree.left, data_dic, return_type)
+                    if len(input.shape) == 2:
+                        return self.operation.operation_dic[tree.name + '_2d'](input)
+                    elif len(input.shape) == 3:
+                        return self.operation.operation_dic[tree.name + '_3d'](input)
+                    else:
+                        raise NotImplementedError('input shape is not right!')
                 if tree.operation_type == '1_num':
-                    return self.operation.operation_dic[tree.name](self.cal_formula(tree.left, data_dic, return_type),
-                                                                   tree.num_1)
+                    input = self.cal_formula(tree.left, data_dic, return_type)
+                    if len(input.shape) == 2:
+                        return self.operation.operation_dic[tree.name + '_2d'](input, tree.num_1)
+                    elif len(input.shape) == 3:
+                        return self.operation.operation_dic[tree.name + '_3d'](input, tree.num_1)
+                    else:
+                        raise NotImplementedError('input shape is not right!')
                 if tree.operation_type == '1_num_num':
-                    return self.operation.operation_dic[tree.name](self.cal_formula(tree.left, data_dic, return_type),
-                                                                   tree.num_1, tree.num_2)
+                    input = self.cal_formula(tree.left, data_dic, return_type)
+                    if len(input.shape) == 2:
+                        return self.operation.operation_dic[tree.name + '_2d'](input, tree.num_1, tree.num_2)
+                    elif len(input.shape) == 3:
+                        return self.operation.operation_dic[tree.name + '_3d'](input, tree.num_1, tree.num_2)
+                    else:
+                        raise NotImplementedError('input shape is not right!')
                 if tree.operation_type == '1_num_num_num':
-                    return self.operation.operation_dic[tree.name](self.cal_formula(tree.left, data_dic, return_type),
-                                                                   tree.num_1, tree.num_2, tree.num_3)
+                    input = self.cal_formula(tree.left, data_dic, return_type)
+                    if len(input.shape) == 2:
+                        return self.operation.operation_dic[tree.name + '_2d'](input, tree.num_1, tree.num_2,
+                                                                               tree.num_3)
+                    elif len(input.shape) == 3:
+                        return self.operation.operation_dic[tree.name + '_3d'](input, tree.num_1, tree.num_2,
+                                                                               tree.num_3)
+                    else:
+                        raise NotImplementedError('input shape is not right!')
                 if tree.operation_type == '2':  # 此时需要判断有没有数字
                     if tree.num_1 is None:
-                        return self.operation.operation_dic[tree.name](self.cal_formula(tree.left, data_dic,
-                                                                                        return_type),
-                                                                       self.cal_formula(tree.right, data_dic,
-                                                                                        return_type))
+                        input_1 = self.cal_formula(tree.left, data_dic, return_type)
+                        input_2 = self.cal_formula(tree.right, data_dic, return_type)
+                        if len(input_1.shape) == 2:
+                            return self.operation.operation_dic[tree.name + '_2d'](input_1, input_2)
+                        elif len(input_1.shape) == 3:
+                            return self.operation.operation_dic[tree.name + '_3d'](input_1, input_2)
                     else:
-                        if tree.left is not None:
-                            return self.operation.operation_dic[tree.name](self.cal_formula(tree.left, data_dic,
-                                                                                            return_type),
-                                                                           tree.num_1)
+                        # 暂时要求数字只能出现在后面
+                        input_1 = self.cal_formula(tree.left, data_dic, return_type)
+                        if len(input_1.shape) == 2:
+                            return self.operation.operation_dic[tree.name + '_num_2d'](input_1, tree.num_1)
+                        elif len(input_1.shape) == 3:
+                            return self.operation.operation_dic[tree.name + '_num_3d'](input_1, tree.num_1)
                         else:
-                            return self.operation.operation_dic[tree.name](tree.num_1,
-                                                                           self.cal_formula(tree.right, data_dic,
-                                                                                            return_type))
+                            raise NotImplementedError('input shape is not right!')
+                        # if tree.left is not None:
+                        #     return self.operation.operation_dic[tree.name](self.cal_formula(tree.left, data_dic,
+                        #                                                                     return_type),
+                        #                                                    tree.num_1)
+                        # else:
+                        #     return self.operation.operation_dic[tree.name](tree.num_1,
+                        #                                                    self.cal_formula(tree.right, data_dic,
+                        #                                                                     return_type))
                 if tree.operation_type == '2_num':
-                    return self.operation.operation_dic[tree.name](self.cal_formula(tree.left, data_dic, return_type),
-                                                                   self.cal_formula(tree.right, data_dic, return_type),
-                                                                   tree.num_1)
+                    input_1 = self.cal_formula(tree.left, data_dic, return_type)
+                    input_2 = self.cal_formula(tree.right, data_dic, return_type)
+                    if len(input_1.shape) == 2:
+                        return self.operation.operation_dic[tree.name + '_2d'](input_1, input_2, tree.num_1)
+                    elif len(input_1.shape) == 3:
+                        return self.operation.operation_dic[tree.name + '_3d'](input_1, input_2, tree.num_1)
+                    else:
+                        raise NotImplementedError('input shape is not right!')
                 if tree.operation_type == '2_num_num':
-                    return self.operation.operation_dic[tree.name](self.cal_formula(tree.left, data_dic, return_type),
-                                                                   self.cal_formula(tree.right, data_dic, return_type),
-                                                                   tree.num_1, tree.num_2)
+                    input_1 = self.cal_formula(tree.left, data_dic, return_type)
+                    input_2 = self.cal_formula(tree.right, data_dic, return_type)
+                    if len(input_1.shape) == 2:
+                        return self.operation.operation_dic[tree.name + '_2d'](input_1, input_2, tree.num_1, tree.num_2)
+                    elif len(input_1.shape) == 3:
+                        return self.operation.operation_dic[tree.name + '_3d'](input_1, input_2, tree.num_1, tree.num_2)
+                    else:
+                        raise NotImplementedError('input shape is not right!')
                 if tree.operation_type == '2_num_num_num':
-                    return self.operation.operation_dic[tree.name](self.cal_formula(tree.left, data_dic, return_type),
-                                                                   self.cal_formula(tree.right, data_dic, return_type),
-                                                                   tree.num_1, tree.num_2, tree.num_3)
+                    input_1 = self.cal_formula(tree.left, data_dic, return_type)
+                    input_2 = self.cal_formula(tree.right, data_dic, return_type)
+                    if len(input_1.shape) == 2:
+                        return self.operation.operation_dic[tree.name + '_2d'](input_1, input_2, tree.num_1,
+                                                                               tree.num_2, tree.num_3)
+                    elif len(input_1.shape) == 3:
+                        return self.operation.operation_dic[tree.name + '_3d'](input_1, input_2, tree.num_1,
+                                                                               tree.num_2, tree.num_3)
+                    else:
+                        raise NotImplementedError('input shape is not right!')
                 if tree.operation_type == '3':
                     return self.operation.operation_dic[tree.name](self.cal_formula(tree.left, data_dic, return_type),
                                                                    self.cal_formula(tree.middle, data_dic, return_type),
