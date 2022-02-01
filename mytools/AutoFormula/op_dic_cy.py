@@ -6,7 +6,7 @@
 """
 
 default_operation_dic = {'1': ['csrank', 'zscore', 'neg_2d', 'neg_3d', 'csindneutral', 'csind', 'absv_2d', 'absv_3d',
-                               'log_2d', 'log_3d', 'logv_2d', 'logv_3d'],
+                               'expv_2d', 'expv_3d', 'logv_2d', 'logv_3d'],
                          '1_num': ['wdirect', 'tsrank_2d', 'tsrank_3d', 'tskurtosis_2d', 'tskurtosis_3d',
                                    'tsskew_2d', 'tsskew_3d', 'tsmean_2d', 'tsmean_3d', 'tsstd_2d', 'tsstd_3d',
                                    'tsdelay_2d', 'tsdelay_3d', 'tsdelta_2d', 'tsdelta_3d t', 'tsmax_2d', 'tsmax_3d',
@@ -34,7 +34,7 @@ default_operation_dic = {'1': ['csrank', 'zscore', 'neg_2d', 'neg_3d', 'csindneu
                                        ],
                          '2_num_num_num': ['tssubset', 'biintraquantile_3d', 'biintraquantileupmean_3d',
                                            'biintraquantiledownmean_3d'],
-                         '3': ['condition', 'tsautocorr'],
+                         '3': ['condition_2d', 'condition_3d', 'tsautocorr'],
                          'intra_data': ['intra_open', 'intra_high', 'intra_low',
                                         'intra_close', 'intra_avg', 'intra_volume',
                                         'intra_money']

@@ -5,7 +5,7 @@
 该文件定义了所有默认算子字典
 """
 
-default_operation_dic = {'1': ['csrank', 'zscore', 'neg', 'csindneutral', 'csind', 'absv'],
+default_operation_dic = {'1': ['csrank', 'zscore', 'neg', 'csindneutral', 'csind', 'absv', 'logv', 'expv'],
                          '1_num': ['wdirect', 'tsrank', 'tskurtosis', 'tsskew',
                                    'tsmean', 'tsstd', 'tspct', 'tsdelay', 'tsdelta', 'tsmax',
                                    'tsmin', 'tsmaxpos', 'tsminpos', 'powv',

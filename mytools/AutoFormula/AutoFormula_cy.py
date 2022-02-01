@@ -134,9 +134,15 @@ class AutoFormula_cy:
                     else:
                         raise NotImplementedError('input shape is not right!')
                 if tree.operation_type == '3':
-                    return self.operation.operation_dic[tree.name](self.cal_formula(tree.left, data_dic, return_type),
-                                                                   self.cal_formula(tree.middle, data_dic, return_type),
-                                                                   self.cal_formula(tree.right, data_dic, return_type))
+                    input_1 = self.cal_formula(tree.left, data_dic, return_type)
+                    input_2 = self.cal_formula(tree.middle, data_dic, return_type)
+                    input_3 = self.cal_formula(tree.right, data_dic, return_type)
+                    if len(input_1.shape) == 2:
+                        return self.operation.operation_dic[tree.name + '_2d'](input_1, input_2, input_3)
+                    elif en(input_1.shape) == 3:
+                        return self.operation.operation_dic[tree.name + '_3d'](input_1, input_2, input_3)
+                    else:
+                        raise NotImplementedError('input shape is not right!')
         if return_type == 'str':
             if tree.variable_type == 'data':
                 return tree.name  # 返回字符串

@@ -17,6 +17,7 @@ from mytools.AutoFormula.operations_cy.two import *
 from mytools.AutoFormula.operations_cy.two_num import *
 from mytools.AutoFormula.operations_cy.two_num_num import *
 from mytools.AutoFormula.operations_cy.two_num_num_num import *
+from mytools.AutoFormula.operations_cy.three import *
 
 from dataloader.dataloader import *
 
@@ -170,8 +171,8 @@ class SignalGenerator:
         self.operation_dic['neg_3d'] = neg_3d
         self.operation_dic['absv_2d'] = absv_2d
         self.operation_dic['absv_3d'] = absv_3d
-        self.operation_dic['log_2d'] = log_2d
-        self.operation_dic['log_3d'] = log_3d
+        self.operation_dic['expv_2d'] = expv_2d
+        self.operation_dic['expv_3d'] = expv_3d
         self.operation_dic['logv_2d'] = logv_2d
         self.operation_dic['logv_3d'] = logv_3d
         self.operation_dic['intratsfftreal'] = intratsfftreal
@@ -292,6 +293,10 @@ class SignalGenerator:
         self.operation_dic['biintraquantile_3d'] = biintraquantile_3d
         self.operation_dic['biintraquantileupmean_3d'] = biintraquantileupmean_3d
         self.operation_dic['biintraquantiledownmean_3d'] = biintraquantiledownmean_3d
+
+        # 3型算子
+        self.operation_dic['condition_2d'] = condition_2d
+        self.operation_dic['condition_3d'] = condition_3d
 
         def condition(a, b, c):
             """
