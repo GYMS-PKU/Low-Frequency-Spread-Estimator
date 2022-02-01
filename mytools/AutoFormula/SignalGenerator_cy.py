@@ -275,6 +275,8 @@ class SignalGenerator:
         self.operation_dic['tsregres_3d'] = tsregres_3d
         self.operation_dic['tscorr_2d'] = tscorr_2d
         self.operation_dic['tscorr_3d'] = tscorr_3d
+        self.operation_dic['tscov_2d'] = tscov_2d
+        self.operation_dic['tscov_3d'] = tscov_3d
 
         # 2_num_num型运算符
         self.operation_dic['bitsquantile_2d'] = bitsquantile_2d

@@ -43,31 +43,42 @@ class AutoTester:
         :param corr_type: linear或者log
         :return:
         """
-        signal[np.isnan(signal)] = 0
         if top is None:
-            top = (signal != 0) & (~np.isnan(signal)) & (~np.isinf(signal)) & (~np.isnan(spread))
+            top = (~np.isnan(signal)) & (~np.isinf(signal)) & (~np.isnan(spread))
 
         if method == 'cs':  # 截面相关系数
             corr = np.zeros(spread.shape[0])
             for i in range(spread.shape[0]):
-                se = ~np.isnan(spread[i])
+                se = top[i]
                 if corr_type == 'linear':
-                    corr[i] = np.corrcoef(spread[i][se], signal[i][se])[0, 1]
+                    if np.sum(se) <= 2:
+                        corr[i] = np.nan
+                    else:
+                        corr[i] = np.corrcoef(spread[i][se], signal[i][se])[0, 1]
                 elif corr_type == 'log':
-                    corr[i] = np.corrcoef(np.log(spread[i][se]), signal[i][se])[0, 1]
+                    if np.sum(se) <= 2:
+                        corr[i] = np.nan
+                    else:
+                        corr[i] = np.corrcoef(np.log(spread[i][se]), signal[i][se])[0, 1]
             mean_corr = np.nanmean(corr)
             corr_IR = mean_corr / np.nanstd(corr)
-            positive_corr_ratio = np.sum(corr > 0) / np.sum(~np.isnan(corr))
+            positive_corr_ratio = np.sum(corr[~np.isnan(corr)] > 0) / np.sum(~np.isnan(corr))
             return Stats(corr=corr, mean_corr=mean_corr, corr_IR=corr_IR, positive_corr_ratio=positive_corr_ratio)
         elif method == 'ts':  # 时序相关系数
             corr = np.zeros(spread.shape[1])
             for i in range(spread.shape[1]):
-                se = ~np.isnan(spread[:, i])
+                se = top[:, i]
                 if corr_type == 'linear':
-                    corr[i] = np.corrcoef(spread[:, i][se], signal[:, i][se])[0, 1]
+                    if np.sum(se) <= 2:
+                        corr[i] = np.nan
+                    else:
+                        corr[i] = np.corrcoef(spread[:, i][se], signal[:, i][se])[0, 1]
                 else:
-                    corr[i] = np.corrcoef(np.log(spread[:, i][se]), signal[:, i][se])[0, 1]
+                    if np.sum(se) <= 2:
+                        corr[i] = np.nan
+                    else:
+                        corr[i] = np.corrcoef(np.log(spread[:, i][se]), signal[:, i][se])[0, 1]
             mean_corr = np.nanmean(corr)
             corr_IR = mean_corr / np.nanstd(corr)
-            positive_corr_ratio = np.sum(corr > 0) / np.sum(~np.isnan(corr))
+            positive_corr_ratio = np.nansum(corr[~np.isnan(corr)] > 0) / np.sum(~np.isnan(corr))
             return Stats(corr=corr, mean_corr=mean_corr, corr_IR=corr_IR, positive_corr_ratio=positive_corr_ratio)
