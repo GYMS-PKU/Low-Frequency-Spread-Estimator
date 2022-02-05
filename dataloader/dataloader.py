@@ -1,4 +1,4 @@
-# Copyright (c) 2021 Dai HBG
+# Copyright (c) 2021-2022 Dai HBG
 
 
 """
@@ -7,6 +7,8 @@
 日志
 2021-12-21
 - 新增相对价差
+2022-02-02
+- 新增多种价差
 """
 
 
@@ -81,7 +83,9 @@ class DataLoader:
         days = os.listdir(self.data_path)
         spread = np.zeros((len(days), 2081))  # 默认2081只股票
         relative_spread = np.zeros((len(days), 2081))  # 默认2081只股票
-        names = ['open', 'low', 'high', 'close']  # 字段
+        vol_wtd_bas = np.zeros((len(days), 2081))  # 默认2081只股票
+        vol_wtd_rel_bas = np.zeros((len(days), 2081))  # 默认2081只股票
+        names = ['open', 'low', 'high', 'close', 'last_bas', 'last_rel_bas']  # 字段
         code_order_dic = {}
         order_code_dic = {}
         date_position_dic = {}
@@ -107,10 +111,13 @@ class DataLoader:
                 data_dic[name][day_num] = df[name].values.copy()
             spread[day_num] = df['bid_ask_spread'].values.copy()
             relative_spread[day_num] = df['relative_spread'].values.copy()
+            vol_wtd_bas[day_num] = df['vol_wtd_bas'].values.copy()
+            vol_wtd_rel_bas[day_num] = df['vol_wtd_rel_bas'].values.copy()
             day_num += 1
 
         data = Data(code_order_dic=code_order_dic, order_code_dic=order_code_dic,
                     position_date_dic=position_date_dic, date_position_dic=date_position_dic,
-                    spread=spread, spread_dic={'spread': spread, 'relative_spread': relative_spread},
+                    spread=spread, spread_dic={'spread': spread, 'relative_spread': relative_spread,
+                                               'vol_wtd_rel_bas': vol_wtd_rel_bas, 'vol_wtd_bas': vol_wtd_bas},
                     data_dic=data_dic)
         return data

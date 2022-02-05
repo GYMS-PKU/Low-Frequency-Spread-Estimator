@@ -193,7 +193,7 @@ class AutoFormula_cy:
 
     def test_formula(self, formula: str, data: Data, start_date: str = None,
                      end_date: str = None, method: str = 'cs', corr_type: str = 'linear',
-                     spread_type: str = 'spread') -> (Stats, np.array):
+                     spread_type: str = 'spread', back: int = 20) -> (Stats, np.array):
         """
         :param formula: 需要测试的因子表达式，如果是字符串形式，需要先解析成树
         :param data: Data类
@@ -202,6 +202,7 @@ class AutoFormula_cy:
         :param method: 计算方式
         :param corr_type: linear或者log
         :param spread_type: 价差类型，可选spread或者relative_spread
+        :param back: 回溯天数
         :return: 返回统计值以及该因子产生的信号矩阵
         """
         if type(formula) == str:
@@ -215,7 +216,7 @@ class AutoFormula_cy:
             start, end = data.get_real_date(start_date, end_date)
         if spread_type == 'spread':
             return self.auto_tester.test(signal[start:end + 1], data.spread[start:end + 1], method=method,
-                                         corr_type=corr_type), signal
-        elif spread_type == 'relative_spread':
-            return self.auto_tester.test(signal[start:end + 1], data.spread_dic['relative_spread'][start:end + 1],
-                                         method=method, corr_type=corr_type), signal
+                                         corr_type=corr_type, back=back), signal
+        else:
+            return self.auto_tester.test(signal[start:end + 1], data.spread_dic[spread_type][start:end + 1],
+                                         method=method, corr_type=corr_type, back=back), signal
