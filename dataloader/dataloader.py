@@ -9,6 +9,10 @@
 - 新增相对价差
 2022-02-02
 - 新增多种价差
+2022-02-12
+- 载入市值
+2022-02-27
+- 载入成交量
 """
 
 
@@ -85,7 +89,7 @@ class DataLoader:
         relative_spread = np.zeros((len(days), 2081))  # 默认2081只股票
         vol_wtd_bas = np.zeros((len(days), 2081))  # 默认2081只股票
         vol_wtd_rel_bas = np.zeros((len(days), 2081))  # 默认2081只股票
-        names = ['open', 'low', 'high', 'close', 'last_bas', 'last_rel_bas']  # 字段
+        names = ['open', 'low', 'high', 'close', 'last_bas', 'last_rel_bas', 'cap', 'volume']  # 字段
         code_order_dic = {}
         order_code_dic = {}
         date_position_dic = {}
