@@ -25,14 +25,14 @@ def test_ts(model, x: np.array, y: np.array, top, s, e, device: str = 'cuda'):
     for i in range(s, e):
         x_tmp = x[top[:, i], i]
         x_pre = model(torch.Tensor(x_tmp).to(device)).detach().cpu().numpy()
-        x_tmp[np.isnan(x_tmp)] = 0
-        se = ~np.isnan(y[top[:, i], i])
-        pre = x_pre[se, 0]
-        corr.append(np.corrcoef(pre, y[top[:, i], i][se])[0, 1])
+
+        se = (~np.isnan(y[top[:, i], i])) & (~np.isnan(x_pre[:,0]))
+
+        corr.append(np.corrcoef(x_pre[se,0], y[top[:, i], i][se])[0, 1])
     return corr
 
 
-def train_cs(x, y, model, optimizer, loss_func, signal: np.array, target: np.array,
+def train_cs(x, y, model, optimizer, loss_func, signal: np.array, target: np.array, univ: np.array,
              epochs=5, batch_size=5, vs_s: int = 100, vs_e: int = 180, os_s: int = 180, os_e: int = 240):
     """
     :param x:
@@ -42,6 +42,7 @@ def train_cs(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
     :param model:
     :param signal: 信号矩阵
     :param target: 目标矩阵
+    :param univ:
     :param epochs:
     :param batch_size:
     :param vs_s: vs开始下标
@@ -80,13 +81,13 @@ def train_cs(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
 
         print(np.mean(all_loss))
 
-        corr = test(model, signal[:, :, :n], target, univ, vs_s, vs_e)
+        corr = test(model, signal, target, univ, vs_s, vs_e)
         print('vs cs IC: {:.4f}'.format(np.mean(corr)))
-        corr = test(model, signal[:, :, :n], target, univ, os_s, os_e)
+        corr = test(model, signal, target, univ, os_s, os_e)
         print('os cs IC: {:.4f}'.format(np.mean(corr)))
 
 
-def train_ts(x, y, model, optimizer, loss_func, signal: np.array, target: np.array,
+def train_ts(x, y, model, optimizer, loss_func, signal: np.array, target: np.array, univ: np.array,
              epochs=5, batch_size=5, vs_s: int = 800, vs_e: int = 1400, os_s: int = 1400, os_e: int = 2081):
     """
     :param x:
@@ -96,6 +97,7 @@ def train_ts(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
     :param model:
     :param signal: 信号矩阵
     :param target: 目标矩阵
+    :param univ:
     :param epochs:
     :param batch_size:
     :param vs_s: vs开始下标
@@ -135,8 +137,8 @@ def train_ts(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
 
         print(np.mean(all_loss))
 
-        corr = test_ts(model, signal[20:], rel_sp[20:], univ[20:], vs_s, vs_e)
+        corr = test_ts(model, signal[21:], target[21:], univ[21:], vs_s, vs_e)
         print('vs ts IC: {:.4f}'.format(np.mean(corr)))
 
-        corr = test_ts(model, signal[20:], rel_sp[20:], univ[20:], os_s, os_e)
+        corr = test_ts(model, signal[21:], target[21:], univ[21:], os_s, os_e)
         print('os ts IC: {:.4f}'.format(np.mean(corr)))

@@ -13,6 +13,12 @@ import torch.nn.functional as F
 import torch.nn.init as init
 import torch.optim as optim
 
+import sys
+sys.path.append('C:/Users/Administrator/Desktop/Daily-Frequency-Quant/QBG')
+sys.path.append('C:/Users/HBG/Desktop/Repositories/Daily-Frequency-Quant/QBG')
+
+from Model.MyDeepModel import *
+
 
 class GateNet(nn.Module):
     def __init__(self, input_dim: int, output_dim: int, dropout: float = 0.7, alpha: float = 0.2):
