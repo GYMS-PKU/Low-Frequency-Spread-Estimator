@@ -17,7 +17,7 @@ import sys
 sys.path.append('C:/Users/Administrator/Desktop/Daily-Frequency-Quant/QBG')
 sys.path.append('C:/Users/HBG/Desktop/Repositories/Daily-Frequency-Quant/QBG')
 
-from Model.MyDeepModel import *
+from Model.MyDeepModel import Gate
 
 
 class GateNet(nn.Module):

@@ -8,6 +8,8 @@
 
 
 import numpy as np
+from tqdm import tqdm
+import torch
 
 
 def get_signal_spread(se):  # 得到以spread为目标的signal
@@ -132,14 +134,14 @@ def get_signal_rela(se):  # 得到以relative spread为目标的signal
     return signal
 
 
-def get_target(name: str='relative_spread'):  # 得到target
+def get_target(se, name: str = 'relative_spread'):  # 得到target
     rel_sp = se.data.spread_dic['relative_spread'].copy()
     back = 20
     for i in range(rel_sp.shape[0]):
         if i < back - 1:
             rel_sp[i] = np.nan
         else:
-            rel_sp[i] = np.nanmean(se.data.spread_dic[name][i-back+1:i+1],axis=0)
+            rel_sp[i] = np.nanmean(se.data.spread_dic[name][i-back+1:i+1], axis=0)
     return rel_sp
 
 
@@ -149,15 +151,15 @@ def get_full_batch(signal, target, univ):  # 获得full_batch的数据
     for i in range(len(signal)):
         se = univ[i] & (~np.isnan(target[i]))
         for j in range(signal.shape[2]):
-            se = se & (~np.isnan(x[i,:,j]))
+            se = se & (~np.isnan(signal[i, :, j]))
         if np.sum(se) == 0:
             continue
         xx.append(signal[i, se, :])
-        yy.append(target[i,se])
+        yy.append(target[i, se])
     return np.vstack(xx), np.hstack(yy)
 
 
-def get_train_data_cs(signal, target, s: int = 20, e: int = 100, device: str = 'cuda'):
+def get_train_data_cs(signal, target, univ, s: int = 20, e: int = 100, device: str = 'cuda'):
     x_train_cs = []
     y_train_cs = []
 
@@ -176,7 +178,7 @@ def get_train_data_cs(signal, target, s: int = 20, e: int = 100, device: str = '
     return x_train_cs, y_train_cs
 
 
-def get_train_data_ts(signal, target, s: int = 0, e: int = 800, device: str = 'cuda'):
+def get_train_data_ts(signal, target, univ, s: int = 0, e: int = 800, device: str = 'cuda'):
     x_train_ts = []
     y_train_ts = []
     for i in tqdm(range(s, e)):

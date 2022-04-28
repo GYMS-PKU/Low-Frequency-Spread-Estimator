@@ -4,6 +4,8 @@
 定义训练模型的函数
 2022-04-16
 - init
+2022-04-28
+- 记录vs和os，输出历史最优vs和对应的os
 """
 
 import numpy as np
@@ -33,7 +35,8 @@ def test_ts(model, x: np.array, y: np.array, top, s, e, device: str = 'cuda'):
 
 
 def train_cs(x, y, model, optimizer, loss_func, signal: np.array, target: np.array, univ: np.array,
-             epochs=5, batch_size=5, vs_s: int = 100, vs_e: int = 180, os_s: int = 180, os_e: int = 240):
+             epochs=5, batch_size=5, vs_s: int = 100, vs_e: int = 180, os_s: int = 180, os_e: int = 240,
+             verbose: int = 1):
     """
     :param x:
     :param y:
@@ -49,6 +52,7 @@ def train_cs(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
     :param vs_e: vs结束下标
     :param os_s: os开始下标
     :param os_e: os开始下标
+    :param verbose: 多少epoch测试
     """
     seed = 1
     random.seed(seed)
@@ -62,9 +66,9 @@ def train_cs(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
 
     bs = 0
     loss = 0
+    vs = []
+    os = []
     for epoch in range(epochs):
-        print('epoch: {}'.format(epoch))
-
         all_loss = []
         for i in range(len(x)):
             out = model(x[i])
@@ -78,17 +82,25 @@ def train_cs(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
                 optimizer.step()
                 bs = 0
                 loss = 0
+                optimizer.zero_grad()
 
-        print(np.mean(all_loss))
+        if (epoch+1) % verbose == 0:
+            print('epoch {}'.format(epoch+1))
+            print(np.mean(all_loss))
 
-        corr = test(model, signal, target, univ, vs_s, vs_e)
-        print('vs cs IC: {:.4f}'.format(np.mean(corr)))
-        corr = test(model, signal, target, univ, os_s, os_e)
-        print('os cs IC: {:.4f}'.format(np.mean(corr)))
+            corr = test(model, signal, target, univ, vs_s, vs_e)
+            print('vs cs IC: {:.4f}'.format(np.mean(corr)))
+            vs.append(np.mean(corr))
+            corr = test(model, signal, target, univ, os_s, os_e)
+            print('os cs IC: {:.4f}'.format(np.mean(corr)))
+            os.append(np.mean(corr))
+
+    print('best vs: {:.4f}, os: {:.4f}'.format(np.max(vs), os[np.argmax(vs)]))
 
 
 def train_ts(x, y, model, optimizer, loss_func, signal: np.array, target: np.array, univ: np.array,
-             epochs=5, batch_size=5, vs_s: int = 800, vs_e: int = 1400, os_s: int = 1400, os_e: int = 2081):
+             epochs=5, batch_size=5, vs_s: int = 800, vs_e: int = 1400, os_s: int = 1400, os_e: int = 2081,
+             verbose: int = 1):
     """
     :param x:
     :param y:
@@ -104,6 +116,7 @@ def train_ts(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
     :param vs_e: vs结束下标
     :param os_s: os开始下标
     :param os_e: os开始下标
+    :param verbose:
     """
 
     seed = 1
@@ -118,9 +131,9 @@ def train_ts(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
 
     bs = 0
     loss = 0
+    vs = []
+    os = []
     for epoch in range(epochs):
-        print('epoch: {}'.format(epoch))
-
         all_loss = []
         for i in range(len(x)):
             out = model(x[i])
@@ -134,11 +147,17 @@ def train_ts(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
                 optimizer.step()
                 bs = 0
                 loss = 0
+                optimizer.zero_grad()
+        if (epoch + 1) % verbose == 0:
+            print('epoch {}'.format(epoch + 1))
+            print(np.mean(all_loss))
 
-        print(np.mean(all_loss))
+            corr = test_ts(model, signal[21:], target[21:], univ[21:], vs_s, vs_e)
+            print('vs ts IC: {:.4f}'.format(np.mean(corr)))
+            vs.append(np.mean(corr))
 
-        corr = test_ts(model, signal[21:], target[21:], univ[21:], vs_s, vs_e)
-        print('vs ts IC: {:.4f}'.format(np.mean(corr)))
+            corr = test_ts(model, signal[21:], target[21:], univ[21:], os_s, os_e)
+            print('os ts IC: {:.4f}'.format(np.mean(corr)))
+            os.append(np.mean(corr))
 
-        corr = test_ts(model, signal[21:], target[21:], univ[21:], os_s, os_e)
-        print('os ts IC: {:.4f}'.format(np.mean(corr)))
+    print('best vs: {:.4f}, os: {:.4f}'.format(np.max(vs), os[np.argmax(vs)]))
