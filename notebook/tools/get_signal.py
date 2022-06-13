@@ -6,7 +6,6 @@
 - init
 """
 
-
 import numpy as np
 from tqdm import tqdm
 import torch
@@ -40,8 +39,8 @@ def get_signal_spread(se):  # 得到以spread为目标的signal
     # Roll
     a = 'tsdelta{close,1}'
     b = 'tsdelay{tsdelta{close,1},1}'
-    fml = 'prod{' + a + ',' + b +'}'
-    fml = 'condition{' + 'ge{' + fml +',0},' + fml + ',add{minus{close,close},0}}'
+    fml = 'prod{' + a + ',' + b + '}'
+    fml = 'condition{' + 'ge{' + fml + ',0},' + fml + ',add{minus{close,close},0}}'
     fml = 'tsmean{' + fml + ',20}'
     fml = 'powv{' + fml + ',0.5}'
 
@@ -51,8 +50,8 @@ def get_signal_spread(se):  # 得到以spread为目标的signal
     # CHL
     a = 'minus{tsdelay{close,1},div{add{tsdelay{high,1},tsdelay{low,1}},2}}'
     b = 'minus{tsdelay{close,1},div{add{high,low},2}}'
-    fml = 'prod{' + a + ',' + b +'}'
-    fml = 'condition{' + 'ge{' + fml +',0},' + fml + ',add{minus{close,close},0}}'
+    fml = 'prod{' + a + ',' + b + '}'
+    fml = 'condition{' + 'ge{' + fml + ',0},' + fml + ',add{minus{close,close},0}}'
     fml = 'tsmean{' + fml + ',20}'
     fml = 'powv{' + fml + ',0.5}'
 
@@ -141,7 +140,7 @@ def get_target(se, name: str = 'relative_spread'):  # 得到target
         if i < back - 1:
             rel_sp[i] = np.nan
         else:
-            rel_sp[i] = np.nanmean(se.data.spread_dic[name][i-back+1:i+1], axis=0)
+            rel_sp[i] = np.nanmean(se.data.spread_dic[name][i - back + 1:i + 1], axis=0)
     return rel_sp
 
 
@@ -163,16 +162,16 @@ def get_train_data_cs(signal, target, univ, s: int = 20, e: int = 100, device: s
     x_train_cs = []
     y_train_cs = []
 
-    for i in tqdm(range(s,e)):
+    for i in tqdm(range(s, e)):
         sse = univ[i] & (~np.isnan(target[i]))
         for j in range(signal.shape[2]):
-            sse = sse & (~np.isnan(signal[i,:,j]))
+            sse = sse & (~np.isnan(signal[i, :, j]))
         if np.sum(sse) == 0:
             continue
-        tmp = torch.Tensor(signal[i,sse]).to(device)
+        tmp = torch.Tensor(signal[i, sse]).to(device)
         tmp[torch.isnan(tmp)] = 0
         x_train_cs.append(tmp)
-        tmp = torch.Tensor(target[i:i+1,sse].T).to(device)
+        tmp = torch.Tensor(target[i:i + 1, sse].T).to(device)
         tmp[torch.isnan(tmp)] = 0
         y_train_cs.append(tmp)
     return x_train_cs, y_train_cs
@@ -182,15 +181,15 @@ def get_train_data_ts(signal, target, univ, s: int = 0, e: int = 800, device: st
     x_train_ts = []
     y_train_ts = []
     for i in tqdm(range(s, e)):
-        sse = univ[:,i] & (~np.isnan(target[:,i]))
+        sse = univ[:, i] & (~np.isnan(target[:, i]))
         for j in range(signal.shape[2]):
-            sse = sse & (~np.isnan(signal[:,i,j]))
+            sse = sse & (~np.isnan(signal[:, i, j]))
         if np.sum(sse) == 0:
             continue
-        tmp = torch.Tensor(signal[sse,i]).to(device)
+        tmp = torch.Tensor(signal[sse, i]).to(device)
         tmp[torch.isnan(tmp)] = 0
         x_train_ts.append(tmp)
-        tmp = torch.Tensor(target[sse,i:i+1]).to(device)
+        tmp = torch.Tensor(target[sse, i:i + 1]).to(device)
         tmp[torch.isnan(tmp)] = 0
         y_train_ts.append(tmp)
     return x_train_ts, y_train_ts

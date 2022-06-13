@@ -28,7 +28,7 @@ def test_ts(model, x: np.array, y: np.array, top, s, e, device: str = 'cuda'):
         x_tmp = x[top[:, i], i]
         x_pre = model(torch.Tensor(x_tmp).to(device)).detach().cpu().numpy()
 
-        se = (~np.isnan(y[top[:, i], i])) & (~np.isnan(x_pre[:,0]))
+        se = (~np.isnan(y[top[:, i], i])) & (~np.isnan(x_pre[:, 0]))
 
         corr.append(np.corrcoef(x_pre[se,0], y[top[:, i], i][se])[0, 1])
     return corr
