@@ -13,6 +13,7 @@ import torch
 
 import sys
 sys.path.append('C:/Users/Administrator/Desktop/Daily-Frequency-Quant/QBG')
+sys.path.append('C:/Users/18316/Desktop/Daily-Frequency-Quant/QBG')
 sys.path.append('C:/Users/HBG/Desktop/Repositories/Daily-Frequency-Quant/QBG')
 
 from Model.MyDeepModel import *
