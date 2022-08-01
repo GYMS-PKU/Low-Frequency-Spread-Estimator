@@ -2,6 +2,8 @@
 
 """
 定义得到signal矩阵的方法
+2022-07-13
+- get_full_batch将特征标准化
 2022-04-16
 - init
 """
@@ -153,21 +155,26 @@ def get_full_batch(signal, target, univ):  # 获得full_batch的数据
             se = se & (~np.isnan(signal[i, :, j]))
         if np.sum(se) == 0:
             continue
-        xx.append(signal[i, se, :])
+        tmp = signal[i, se, :]
+        for j in range(tmp.shape[1]):
+            tmp[:, j] -= np.nanmean(tmp[:, j])
+            tmp[:, j] /= np.nanstd(tmp[:, j])
+        xx.append(tmp)
         yy.append(target[i, se])
     return np.vstack(xx), np.hstack(yy)
 
 
-def get_train_data_cs(signal, target, univ, s: int = 20, e: int = 100, device: str = 'cuda'):
+def get_train_data_cs(signal, target, univ, s: int = 20, e: int = 80, device: str = 'cuda'):
     x_train_cs = []
     y_train_cs = []
 
     for i in tqdm(range(s, e)):
-        sse = univ[i] & (~np.isnan(target[i]))
-        for j in range(signal.shape[2]):
-            sse = sse & (~np.isnan(signal[i, :, j]))
-        if np.sum(sse) == 0:
-            continue
+        # sse = univ[i] & (~np.isnan(target[i]))
+        # for j in range(signal.shape[2]):
+        #     sse = sse & (~np.isnan(signal[i, :, j]))
+        # if np.sum(sse) == 0:
+        #     continue
+        sse = univ[i]
         tmp = torch.Tensor(signal[i, sse]).to(device)
         tmp[torch.isnan(tmp)] = 0
         x_train_cs.append(tmp)
@@ -184,7 +191,7 @@ def get_train_data_ts(signal, target, univ, s: int = 0, e: int = 800, device: st
         sse = univ[:, i] & (~np.isnan(target[:, i]))
         for j in range(signal.shape[2]):
             sse = sse & (~np.isnan(signal[:, i, j]))
-        if np.sum(sse) == 0:
+        if np.sum(sse) <= 1:
             continue
         tmp = torch.Tensor(signal[sse, i]).to(device)
         tmp[torch.isnan(tmp)] = 0

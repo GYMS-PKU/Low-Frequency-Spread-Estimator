@@ -30,8 +30,10 @@ def test_ts(model, x: np.array, y: np.array, top, s, e, device: str = 'cuda'):
         x_pre = model(torch.Tensor(x_tmp).to(device)).detach().cpu().numpy()
 
         se = (~np.isnan(y[top[:, i], i])) & (~np.isnan(x_pre[:, 0]))
+        if np.sum(se) == 0:
+            continue
 
-        corr.append(np.corrcoef(x_pre[se,0], y[top[:, i], i][se])[0, 1])
+        corr.append(np.corrcoef(x_pre[se, 0], y[top[:, i], i][se])[0, 1])
     return corr
 
 
@@ -90,11 +92,11 @@ def train_cs(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
             print(np.mean(all_loss))
 
             corr = test(model, signal, target, univ, vs_s, vs_e)
-            print('vs cs IC: {:.4f}'.format(np.mean(corr)))
-            vs.append(np.mean(corr))
+            print('vs cs IC: {:.4f}'.format(np.nanmean(corr)))
+            vs.append(np.nanmean(corr))
             corr = test(model, signal, target, univ, os_s, os_e)
-            print('os cs IC: {:.4f}'.format(np.mean(corr)))
-            os.append(np.mean(corr))
+            print('os cs IC: {:.4f}'.format(np.nanmean(corr)))
+            os.append(np.nanmean(corr))
 
     print('best vs: {:.4f}, os: {:.4f}'.format(np.max(vs), os[np.argmax(vs)]))
 
@@ -154,11 +156,12 @@ def train_ts(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
             print(np.mean(all_loss))
 
             corr = test_ts(model, signal[21:], target[21:], univ[21:], vs_s, vs_e)
-            print('vs ts IC: {:.4f}'.format(np.mean(corr)))
+            print('vs ts IC: {:.4f}'.format(np.nanmean(corr)))
             vs.append(np.mean(corr))
 
             corr = test_ts(model, signal[21:], target[21:], univ[21:], os_s, os_e)
-            print('os ts IC: {:.4f}'.format(np.mean(corr)))
+            print('os ts IC: {:.4f}'.format(np.nanmean(corr)))
+
             os.append(np.mean(corr))
 
     print('best vs: {:.4f}, os: {:.4f}'.format(np.max(vs), os[np.argmax(vs)]))

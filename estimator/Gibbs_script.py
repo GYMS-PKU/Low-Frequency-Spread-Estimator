@@ -2,6 +2,9 @@
 
 """
 多进程采样
+
+2022-08-01
+- 从从20到243都采样
 """
 
 
@@ -13,6 +16,7 @@ from time import time
 
 import sys
 sys.path.append('C:/Users/Administrator/Desktop/Repositories/Low-Frequency-Spread-Estimator')
+sys.path.append('C:/Users/18316/Desktop/Repositories/Low-Frequency-Spread-Estimator')
 sys.path.append('C:/Users/Handsome Bad Guy/Desktop/Repositories/Low-Frequency-Spread-Estimator')
 
 from SpreadEstimator.SpreadEstimator import SpreadEstimator
@@ -24,7 +28,7 @@ def test(t: tuple):
     c = np.zeros((len(close)-20, close.shape[1]))
     print('{} start'.format(num))
     for i in range(20, len(close)):
-        c_s, q_s, sigma_u_s = gibbs(close[i-19:i+1],
+        c_s, q_s, sigma_u_s = gibbs(close[i-19:i],
                                     sigma_c=1e6, ig_alpha=2,
                                     ig_beta=1e-4, sample_num=100)
         c_s = np.mean(c_s, axis=1)
@@ -45,7 +49,8 @@ def main():
     top = np.sum(np.isnan(se.data.data_dic['close']), axis=0) <= 15
 
     t = time()
-    args = [(close[i*21: i*21+21+20, top], i) for i in range(10)]
+    args = [(close[i*21: i*21+21+20], i) for i in range(9)]
+    args.append((close[9*21: 243], 9))
     with Pool(10) as p:
         p.map(test, args)
     print('done. time used: {:.4f}s'.format(time()-t))
