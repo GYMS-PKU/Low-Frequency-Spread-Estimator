@@ -25,12 +25,22 @@ def prod(a, b):
     return a * b
 
 
-def div(a, b):
-    s = np.zeros(a.shape)
-    if type(b) == float:
-        s = a / b
-    else:
-        s[b != 0] = a[b != 0] / b[b != 0]
+def div(a: np.array, b: np.array):
+    if type(a) == np.ndarray and type(b) == np.ndarray:
+        if len(a.shape) == 3 and len(b.shape) == 2:
+            s = np.zeros(a.shape, dtype=np.float32)
+            for i in range(a.shape[1]):
+                s[:, i] = a[:, i] / b
+            s[np.isinf(s)] = np.nan
+            return s
+        if len(a.shape) == 2 and len(b.shape) == 3:
+            s = np.zeros(b.shape, dtype=np.float32)
+            for i in range(b.shape[1]):
+                s[:, i] = a / b[:, i]
+            s[np.isinf(s)] = np.nan
+            return s
+    s = (a / b).astype(np.float32)
+    s[np.isinf(s)] = np.nan
     return s
 
 

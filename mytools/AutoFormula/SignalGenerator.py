@@ -34,6 +34,8 @@ sys.path.append('C:/Users/Administrator/Desktop/Repositories/Low-Frequency-Sprea
                 '/mytools/AutoFormula/operations')
 sys.path.append('C:/Users/Handsome Bad Guy/Desktop/Repositories/Low-Frequency-Spread-Estimator'
                 '/mytools/AutoFormula/operations')
+sys.path.append('C:/Users/Windows11/Desktop/Repositories/Low-Frequency-Spread-Estimator'
+                '/mytools/AutoFormula/operations')
 from one import *
 from one_num import *
 from one_num_num import *
@@ -187,6 +189,8 @@ class SignalGenerator:
         # 1型算符
         self.operation_dic['neg'] = neg
         self.operation_dic['absv'] = absv
+        self.operation_dic['expv'] = expv
+        self.operation_dic['logv'] = logv
         self.operation_dic['intratsfftreal'] = intratsfftreal
         self.operation_dic['intratsfftimag'] = intratsfftimag
 

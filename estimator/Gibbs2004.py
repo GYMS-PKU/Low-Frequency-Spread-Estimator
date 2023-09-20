@@ -30,9 +30,12 @@ def gibbs(p: np.array, sigma_c: float = 1e6, ig_alpha: float = 2, ig_beta: float
     :return: c, sigma_u^2, q的采样序列
     """
     delta_p = np.log(p[1:]) - np.log(p[:-1])
+    delta_p[np.isinf(delta_p)] = 0
+    delta_p[np.isnan(delta_p)] = 0
+    # print(np.sum(np.isnan(delta_p)))
     q = np.ones(p.shape)  # 买卖方向序列初始化为全买单
     # c = 0.01  # 价差初始化为0.01
-    sigma_u = np.var(delta_p, axis=0)  # 价格变化方差初始化为对数收益率方差
+    sigma_u = np.nanvar(delta_p, axis=0)  # 价格变化方差初始化为对数收益率方差
     q_s = np.zeros((sample_num, len(p), p.shape[1]))  # 存放所有的q序列
     c_s = np.zeros((p.shape[1], sample_num))
     sigma_u_s = np.zeros((p.shape[1], sample_num))
@@ -41,7 +44,9 @@ def gibbs(p: np.array, sigma_c: float = 1e6, ig_alpha: float = 2, ig_beta: float
 
         # 采样c
         sigma = 1/sigma_c + np.sum(delta_q**2, axis=0)/sigma_u  # 长度为stock_num
+        sigma[np.isnan(sigma)] = 1e-8
         mean = np.sum(delta_q*delta_p, axis=0) / sigma  # 长度为stock_num
+        # print(np.sum(np.isnan(np.sum(delta_q*delta_p, axis=0))))
         c = truncnorm.rvs(-mean/np.sqrt(sigma), 10000, loc=mean/np.sqrt(sigma)) * np.sqrt(sigma)  # 长度为stock_num
         c_s[:, num] = c
 

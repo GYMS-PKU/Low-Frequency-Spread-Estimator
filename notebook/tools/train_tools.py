@@ -14,6 +14,7 @@ import torch
 import sys
 sys.path.append('C:/Users/Administrator/Desktop/Daily-Frequency-Quant/QBG')
 sys.path.append('C:/Users/18316/Desktop/Daily-Frequency-Quant/QBG')
+sys.path.append('C:/Users/Windows11/Desktop/Daily-Frequency-Quant/QBG')
 sys.path.append('C:/Users/HBG/Desktop/Repositories/Daily-Frequency-Quant/QBG')
 
 from Model.MyDeepModel import *
@@ -38,7 +39,7 @@ def test_ts(model, x: np.array, y: np.array, top, s, e, device: str = 'cuda'):
 
 
 def train_cs(x, y, model, optimizer, loss_func, signal: np.array, target: np.array, univ: np.array,
-             epochs=5, batch_size=5, vs_s: int = 100, vs_e: int = 180, os_s: int = 180, os_e: int = 240,
+             epochs=5, batch_size=5, vs_s: int = 100, vs_e: int = 180, os_s: int = 180, os_e: int = 225,
              verbose: int = 1):
     """
     :param x:
@@ -153,15 +154,15 @@ def train_ts(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
                 optimizer.zero_grad()
         if (epoch + 1) % verbose == 0:
             print('epoch {}'.format(epoch + 1))
-            print(np.mean(all_loss))
+            print(np.nanmean(all_loss))
 
             corr = test_ts(model, signal[21:], target[21:], univ[21:], vs_s, vs_e)
             print('vs ts IC: {:.4f}'.format(np.nanmean(corr)))
-            vs.append(np.mean(corr))
+            vs.append(np.nanmean(corr))
 
             corr = test_ts(model, signal[21:], target[21:], univ[21:], os_s, os_e)
             print('os ts IC: {:.4f}'.format(np.nanmean(corr)))
 
-            os.append(np.mean(corr))
+            os.append(np.nanmean(corr))
 
     print('best vs: {:.4f}, os: {:.4f}'.format(np.max(vs), os[np.argmax(vs)]))

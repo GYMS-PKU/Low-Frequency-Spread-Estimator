@@ -14,6 +14,14 @@ def neg(a):
     return -a
 
 
+def expv(a):
+    return np.exp(a)
+
+
+def logv(a):
+    return np.log(a)
+
+
 def absv(a):  # 取绝对值
     return np.abs(a)
 

@@ -35,11 +35,11 @@ def test(t: tuple):
         c_s = np.mean(c_s, axis=1)
         c[i-20] = c_s
         print('No {} done {}. time used: {:.4f}s'.format(num, i-19, time()-ti))
-    np.save('./cache/{}.npy'.format(num), c)
+    np.save('./cache_SP500/{}.npy'.format(num), c)
 
 
 def main():
-    se = SpreadEstimator()
+    se = SpreadEstimator(market='SP500')
     close = se.data.data_dic['close'].copy()
     for i in range(len(close)):
         for j in range(close.shape[1]):
@@ -50,9 +50,9 @@ def main():
     top = np.sum(np.isnan(se.data.data_dic['close']), axis=0) <= 15
 
     t = time()
-    args = [(close[i*21: i*21+21+20], i) for i in range(9)]
-    args.append((close[9*21: 243], 9))
-    with Pool(10) as p:
+    args = [(close[i*21: i*21+21+20], i) for i in range(8)]
+    args.append((close[8*21: 225], 8))
+    with Pool(9) as p:
         p.map(test, args)
     print('done. time used: {:.4f}s'.format(time()-t))
 

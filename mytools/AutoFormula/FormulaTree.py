@@ -38,6 +38,7 @@ import sys
 
 sys.path.append('C:/Users/Administrator/Desktop/Repositories/Low-Frequency-Spread-Estimator/mytools/AutoFormula')
 sys.path.append('C:/Users/Handsome Bad Guy/Desktop/Repositories/Low-Frequency-Spread-Estimator/mytools/AutoFormula')
+sys.path.append('C:/Users/Windows11/Desktop/Repositories/Low-Frequency-Spread-Estimator/mytools/AutoFormula')
 from op_dic import *
 from FormulaParser import Node, FormulaParser
 

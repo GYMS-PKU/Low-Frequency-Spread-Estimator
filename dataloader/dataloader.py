@@ -1,18 +1,20 @@
-# Copyright (c) 2021-2022 Dai HBG
+# Copyright (c) 2021-2023 Dai HBG
 
 
 """
 本代码实现dataloader，加载2020年深交所具有高频数据的股票日频数据和由高频数据计算的平均价差以及相对价差
 
 日志
-2021-12-21
-- 新增相对价差
-2022-02-02
-- 新增多种价差
-2022-02-12
-- 载入市值
+2023-06-22
+- 新增DataLoader_SP500
 2022-02-27
 - 载入成交量
+2022-02-12
+- 载入市值
+2022-02-02
+- 新增多种价差
+2021-12-21
+- 新增相对价差
 """
 
 
@@ -20,6 +22,7 @@ import numpy as np
 import pandas as pd
 import os
 import datetime
+import pickle
 
 
 class Data:
@@ -123,5 +126,38 @@ class DataLoader:
                     position_date_dic=position_date_dic, date_position_dic=date_position_dic,
                     spread=spread, spread_dic={'spread': spread, 'relative_spread': relative_spread,
                                                'vol_wtd_rel_bas': vol_wtd_rel_bas, 'vol_wtd_bas': vol_wtd_bas},
+                    data_dic=data_dic)
+        return data
+
+
+class DataLoader_SP500:
+    def __init__(self, data_path: str = 'F:/TAQ/ProcessedFile',
+                 back_test_data_path: str = 'F:/Data/AutoFactoryData/BackTestData'):
+        """
+        :param data_path: 存放数据的路径
+        :param back_test_data_path: 回测数据的存放路径
+        """
+        self.data_path = data_path
+        self.back_test_data_path = back_test_data_path
+
+    def load(self) -> Data:
+        """
+        :return: data，包含data_dic，分别为OCHL四个价格；spread，价差；OCHL需要用snapshot计算
+        """
+        with open('F:/Data/ML For Liquidity/code_order_dic.pkl', 'rb') as f:
+            code_order_dic = pickle.load(f)
+        with open('F:/Data/ML For Liquidity/date_pos_dic.pkl', 'rb') as f:
+            date_position_dic = pickle.load(f)
+        with open('F:/Data/ML For Liquidity/spread_dic.pkl', 'rb') as f:
+            spread_dic = pickle.load(f)
+        with open('F:/Data/ML For Liquidity/raw_data_dic.pkl', 'rb') as f:
+            data_dic = pickle.load(f)
+
+        order_code_dic = {v: k for k, v in code_order_dic.items()}
+        position_date_dic = {v: k for k, v in date_position_dic.items()}
+
+        data = Data(code_order_dic=code_order_dic, order_code_dic=order_code_dic,
+                    position_date_dic=position_date_dic, date_position_dic=date_position_dic,
+                    spread=spread_dic['spread'], spread_dic=spread_dic,
                     data_dic=data_dic)
         return data

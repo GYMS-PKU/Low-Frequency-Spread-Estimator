@@ -177,6 +177,7 @@ def get_train_data_cs(signal, target, univ, s: int = 20, e: int = 80, device: st
         sse = univ[i]
         tmp = torch.Tensor(signal[i, sse]).to(device)
         tmp[torch.isnan(tmp)] = 0
+        tmp[torch.isinf(tmp)] = 0
         x_train_cs.append(tmp)
         tmp = torch.Tensor(target[i:i + 1, sse].T).to(device)
         tmp[torch.isnan(tmp)] = 0
@@ -195,6 +196,7 @@ def get_train_data_ts(signal, target, univ, s: int = 0, e: int = 800, device: st
             continue
         tmp = torch.Tensor(signal[sse, i]).to(device)
         tmp[torch.isnan(tmp)] = 0
+        tmp[torch.isinf(tmp)] = 0
         x_train_ts.append(tmp)
         tmp = torch.Tensor(target[sse, i:i + 1]).to(device)
         tmp[torch.isnan(tmp)] = 0
