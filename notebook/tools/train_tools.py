@@ -166,3 +166,17 @@ def train_ts(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
             os.append(np.nanmean(corr))
 
     print('best vs: {:.4f}, os: {:.4f}'.format(np.max(vs), os[np.argmax(vs)]))
+
+    out = []
+    ys = []
+    device = 'cuda'
+    for i in range(os_s, os_e):
+        x_tmp = signal[21:][univ[21:][:, i], i]
+        x_pre = model(torch.Tensor(x_tmp).to(device)).detach().cpu().numpy()
+
+        se = (~np.isnan(target[21:][univ[21:][:, i], i])) & (~np.isnan(x_pre[:, 0]))
+        if np.sum(se) == 0:
+            continue
+        out.append(x_pre[se, 0]/np.std(x_pre[se, 0]))
+        ys.append(target[21:][univ[21:][:, i], i][se])
+    return out, ys

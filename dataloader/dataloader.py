@@ -148,7 +148,7 @@ class DataLoader_SP500:
             code_order_dic = pickle.load(f)
         with open('F:/Data/ML For Liquidity/date_pos_dic.pkl', 'rb') as f:
             date_position_dic = pickle.load(f)
-        with open('F:/Data/ML For Liquidity/spread_dic.pkl', 'rb') as f:
+        with open('F:/Data/ML For Liquidity/w_spread_dic.pkl', 'rb') as f:
             spread_dic = pickle.load(f)
         with open('F:/Data/ML For Liquidity/raw_data_dic.pkl', 'rb') as f:
             data_dic = pickle.load(f)
