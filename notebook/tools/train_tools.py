@@ -72,6 +72,10 @@ def train_cs(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
     loss = 0
     vs = []
     os = []
+
+    outs = []
+    ys = []
+
     for epoch in range(epochs):
         all_loss = []
         for i in range(len(x)):
@@ -99,7 +103,16 @@ def train_cs(x, y, model, optimizer, loss_func, signal: np.array, target: np.arr
             print('os cs IC: {:.4f}'.format(np.nanmean(corr)))
             os.append(np.nanmean(corr))
 
+    for i in range(os_s, os_e):
+        pred = model(torch.Tensor(signal[i, univ[i]]).cuda())[:, 0].detach().cpu().numpy()
+        y = target[i, univ[i]]
+        se = ~np.isnan(pred) & ~np.isnan(y)
+        pred[se] /= np.std(pred[se])
+        outs.append(pred[se])
+        ys.append(y[se])
+
     print('best vs: {:.4f}, os: {:.4f}'.format(np.max(vs), os[np.argmax(vs)]))
+    return outs, ys
 
 
 def train_ts(x, y, model, optimizer, loss_func, signal: np.array, target: np.array, univ: np.array,
